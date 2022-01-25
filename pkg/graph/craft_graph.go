@@ -192,12 +192,12 @@ func bollingerBandsGraph(x []int64, m []float64, u []float64, l []float64) (ml, 
 	return
 }
 
-func GetDStocksChart(ticker string) string {
+func GetDStocksChart(ticker string) (string, error) {
 	ticker = strings.ToUpper(ticker)
 	stock, err := fetcher.GetStock(ticker, "D", time.Now().Add(-24*time.Hour*48), time.Now())
 
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	normalisedStock, c, t := normalize.NormalizeStocks(stock)
@@ -215,17 +215,17 @@ func GetDStocksChart(ticker string) string {
 
 	f, err := os.Create("./" + ticker + ".html")
 	if err != nil {
-		panic(err)
+		return "", err
 
 	}
 	page.Render(io.MultiWriter(f))
 
 	fileN := screenshot.TakeSS(ticker)
 
-	return fileN
+	return fileN, nil
 }
 
-func Get15MStocksChart(ticker string) string {
+func Get15MStocksChart(ticker string) (string, error) {
 	ticker = strings.ToUpper(ticker)
 	loc, _ := time.LoadLocation("America/Detroit")
 	yesterday := time.Now().In(loc).Add(-time.Hour * 24).Format("2006/01/02")
@@ -233,7 +233,7 @@ func Get15MStocksChart(ticker string) string {
 	stock, err := fetcher.GetStock(ticker, "15", tim.Add(time.Hour*28), time.Now())
 
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	normalisedStock, c, t := normalize.NormalizeStocks(stock)
@@ -251,17 +251,17 @@ func Get15MStocksChart(ticker string) string {
 
 	f, err := os.Create("./" + ticker + ".html")
 	if err != nil {
-		panic(err)
+		return "", err
 
 	}
 	page.Render(io.MultiWriter(f))
 
 	fileN := screenshot.TakeSS(ticker)
 
-	return fileN
+	return fileN, nil
 }
 
-func GetHStocksChart(ticker string) string {
+func GetHStocksChart(ticker string) (string, error) {
 	ticker = strings.ToUpper(ticker)
 	loc, _ := time.LoadLocation("America/Detroit")
 	yesterday := time.Now().In(loc).Add(-time.Hour * 168).Format("2006/01/02")
@@ -269,7 +269,7 @@ func GetHStocksChart(ticker string) string {
 	stock, err := fetcher.GetStock(ticker, "60", tim.Add(time.Hour*4), time.Now())
 
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	normalisedStock, c, t := normalize.NormalizeStocks(stock)
@@ -287,22 +287,22 @@ func GetHStocksChart(ticker string) string {
 
 	f, err := os.Create("./" + ticker + ".html")
 	if err != nil {
-		panic(err)
+		return "", err
 
 	}
 	page.Render(io.MultiWriter(f))
 
 	fileN := screenshot.TakeSS(ticker)
 
-	return fileN
+	return fileN, nil
 }
 
-func GetDCryptoChart(ticker string) string {
+func GetDCryptoChart(ticker string) (string, error) {
 	ticker = strings.ToUpper(ticker)
 	crypto, err := fetcher.GetCrypto(ticker, "D", time.Now().Add(-24*time.Hour*48), time.Now())
 
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	normalisedCrypto, c, t := normalize.NormalizeCrypto(crypto)
@@ -320,17 +320,17 @@ func GetDCryptoChart(ticker string) string {
 
 	f, err := os.Create("./" + ticker + ".html")
 	if err != nil {
-		panic(err)
+		return "", err
 
 	}
 	page.Render(io.MultiWriter(f))
 
 	fileN := screenshot.TakeSS(ticker)
 
-	return fileN
+	return fileN, nil
 }
 
-func Get15MCryptoChart(ticker string) string {
+func Get15MCryptoChart(ticker string) (string, error) {
 	ticker = strings.ToUpper(ticker)
 	loc, _ := time.LoadLocation("America/Detroit")
 	yesterday := time.Now().In(loc).Add(-time.Hour * 24).Format("2006/01/02")
@@ -338,7 +338,7 @@ func Get15MCryptoChart(ticker string) string {
 	crypto, err := fetcher.GetCrypto(ticker, "15", tim.Add(time.Hour*28), time.Now())
 
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	normalisedCrypto, c, t := normalize.NormalizeCrypto(crypto)
@@ -356,17 +356,17 @@ func Get15MCryptoChart(ticker string) string {
 
 	f, err := os.Create("./" + ticker + ".html")
 	if err != nil {
-		panic(err)
+		return "", err
 
 	}
 	page.Render(io.MultiWriter(f))
 
 	fileN := screenshot.TakeSS(ticker)
 
-	return fileN
+	return fileN, nil
 }
 
-func GetHCryptoChart(ticker string) string {
+func GetHCryptoChart(ticker string) (string, error) {
 	ticker = strings.ToUpper(ticker)
 	loc, _ := time.LoadLocation("America/Detroit")
 	yesterday := time.Now().In(loc).Add(-time.Hour * 168).Format("2006/01/02")
@@ -374,7 +374,7 @@ func GetHCryptoChart(ticker string) string {
 	crypto, err := fetcher.GetCrypto(ticker, "60", tim.Add(time.Hour*4), time.Now())
 
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	normalisedCrypto, c, t := normalize.NormalizeCrypto(crypto)
@@ -392,12 +392,12 @@ func GetHCryptoChart(ticker string) string {
 
 	f, err := os.Create("./" + ticker + ".html")
 	if err != nil {
-		panic(err)
+		return "", err
 
 	}
 	page.Render(io.MultiWriter(f))
 
 	fileN := screenshot.TakeSS(ticker)
 
-	return fileN
+	return fileN, nil
 }
