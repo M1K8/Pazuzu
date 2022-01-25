@@ -296,3 +296,108 @@ func GetHStocksChart(ticker string) string {
 
 	return fileN
 }
+
+func GetDCryptoChart(ticker string) string {
+	ticker = strings.ToUpper(ticker)
+	crypto, err := fetcher.GetCrypto(ticker, "D", time.Now().Add(-24*time.Hour*48), time.Now())
+
+	if err != nil {
+		panic(err)
+	}
+
+	normalisedCrypto, c, t := normalize.NormalizeCrypto(crypto)
+
+	w := baseCandleGraph(normalisedCrypto, ticker, "D")
+
+	m, u, l := indicator.BollingerBands(c)
+	ml, ll, ul := bollingerBandsGraph(t, m, u, l)
+	w.Overlap(ll, ul, ml)
+
+	page := components.NewPage()
+	page.AddCharts(
+		w,
+	)
+
+	f, err := os.Create("./" + ticker + ".html")
+	if err != nil {
+		panic(err)
+
+	}
+	page.Render(io.MultiWriter(f))
+
+	fileN := screenshot.TakeSS(ticker)
+
+	return fileN
+}
+
+func Get15MCryptoChart(ticker string) string {
+	ticker = strings.ToUpper(ticker)
+	loc, _ := time.LoadLocation("America/Detroit")
+	yesterday := time.Now().In(loc).Add(-time.Hour * 24).Format("2006/01/02")
+	tim, _ := time.Parse("2006/01/02", yesterday)
+	crypto, err := fetcher.GetCrypto(ticker, "15", tim.Add(time.Hour*28), time.Now())
+
+	if err != nil {
+		panic(err)
+	}
+
+	normalisedCrypto, c, t := normalize.NormalizeCrypto(crypto)
+
+	w := baseCandleGraph(normalisedCrypto, ticker, "15")
+
+	m, u, l := indicator.BollingerBands(c)
+	ml, ll, ul := bollingerBandsGraph(t, m, u, l)
+	w.Overlap(ll, ul, ml)
+
+	page := components.NewPage()
+	page.AddCharts(
+		w,
+	)
+
+	f, err := os.Create("./" + ticker + ".html")
+	if err != nil {
+		panic(err)
+
+	}
+	page.Render(io.MultiWriter(f))
+
+	fileN := screenshot.TakeSS(ticker)
+
+	return fileN
+}
+
+func GetHCryptoChart(ticker string) string {
+	ticker = strings.ToUpper(ticker)
+	loc, _ := time.LoadLocation("America/Detroit")
+	yesterday := time.Now().In(loc).Add(-time.Hour * 168).Format("2006/01/02")
+	tim, _ := time.Parse("2006/01/02", yesterday)
+	crypto, err := fetcher.GetCrypto(ticker, "60", tim.Add(time.Hour*4), time.Now())
+
+	if err != nil {
+		panic(err)
+	}
+
+	normalisedCrypto, c, t := normalize.NormalizeCrypto(crypto)
+
+	w := baseCandleGraph(normalisedCrypto, ticker, "60")
+
+	m, u, l := indicator.BollingerBands(c)
+	ml, ll, ul := bollingerBandsGraph(t, m, u, l)
+	w.Overlap(ll, ul, ml)
+
+	page := components.NewPage()
+	page.AddCharts(
+		w,
+	)
+
+	f, err := os.Create("./" + ticker + ".html")
+	if err != nil {
+		panic(err)
+
+	}
+	page.Render(io.MultiWriter(f))
+
+	fileN := screenshot.TakeSS(ticker)
+
+	return fileN
+}
