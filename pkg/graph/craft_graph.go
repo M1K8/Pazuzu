@@ -88,6 +88,11 @@ func baseCandleGraph(candles []normalize.NormalCandleData, ticker string, timefr
 		charts.WithYAxisOpts(opts.YAxis{
 			Scale: true,
 		}),
+		charts.WithXAxisOpts(opts.XAxis{
+			Scale: true,
+			Min:   "dataMin",
+			Max:   "dataMax",
+		}),
 		charts.WithDataZoomOpts(opts.DataZoom{
 			Start:      0,
 			End:        10000,
@@ -335,7 +340,7 @@ func Get15MCryptoChart(ticker string) (string, error) {
 	loc, _ := time.LoadLocation("America/Detroit")
 	yesterday := time.Now().In(loc).Add(-time.Hour * 24).Format("2006/01/02")
 	tim, _ := time.Parse("2006/01/02", yesterday)
-	crypto, err := fetcher.GetCrypto(ticker, "15", tim.Add(time.Hour*28), time.Now())
+	crypto, err := fetcher.GetCrypto(ticker, "15", tim, time.Now())
 
 	if err != nil {
 		return "", err
@@ -371,7 +376,7 @@ func GetHCryptoChart(ticker string) (string, error) {
 	loc, _ := time.LoadLocation("America/Detroit")
 	yesterday := time.Now().In(loc).Add(-time.Hour * 168).Format("2006/01/02")
 	tim, _ := time.Parse("2006/01/02", yesterday)
-	crypto, err := fetcher.GetCrypto(ticker, "60", tim.Add(time.Hour*4), time.Now())
+	crypto, err := fetcher.GetCrypto(ticker, "60", tim, time.Now())
 
 	if err != nil {
 		return "", err
