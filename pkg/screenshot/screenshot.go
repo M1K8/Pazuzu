@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/chromedp/cdproto/page"
@@ -35,6 +36,9 @@ func TakeSS(ticker string) string {
 	defer cancel()
 
 	img, _ := filepath.Abs("./" + ticker + ".html")
+	defer func() {
+		os.Remove(img)
+	}()
 
 	url := "file:///" + img
 	filename := fmt.Sprintf("%v.png", uuid.New().String())
@@ -58,7 +62,6 @@ func ScreenshotTasks(url string, imageBuf *[]byte) chromedp.Tasks {
 	return chromedp.Tasks{
 		chromedp.Navigate(url),
 		chromedp.ActionFunc(func(ctx context.Context) (err error) {
-
 			*imageBuf, err = page.CaptureScreenshot().WithQuality(100).WithClip(&page.Viewport{
 				X:      5,
 				Y:      5,
