@@ -75,7 +75,7 @@ func GetCrypto(coin, resolution string, from, to time.Time) (*finnhub.CryptoCand
 	cfg.AddDefaultHeader("X-Finnhub-Token", finn)
 	finnhubClient := finnhub.NewAPIClient(cfg).DefaultApi
 
-	candles, req, err := finnhubClient.CryptoCandles(context.Background()).Symbol(strings.ToUpper(coin)).Resolution(resolution).From(from.Unix()).To(to.Unix()).Execute()
+	candles, req, err := finnhubClient.CryptoCandles(context.Background()).Symbol("BINANCE:" + strings.ToUpper(coin) + "USDT").Resolution(resolution).From(from.Unix()).To(to.Unix()).Execute()
 
 	if err != nil {
 		if req != nil {
