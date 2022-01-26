@@ -31,6 +31,74 @@ import (
 	"github.com/go-echarts/go-echarts/v2/opts"
 )
 
+var loc, _ = time.LoadLocation("America/Detroit")
+
+// TODO - WOrkaround
+func getExtendedDeMarker(times []time.Time, max float32) *charts.Bar {
+	bar := charts.NewBar()
+
+	preY := make([]opts.BarData, 0)
+	postY := make([]opts.BarData, 0)
+
+	midnight := time.Now().In(loc).Format("2006/01/02")
+	tim, _ := time.Parse("2006/01/02", midnight)
+
+	bar = bar.SetXAxis(times)
+
+	bar.SetGlobalOptions(
+		charts.WithYAxisOpts(opts.YAxis{
+			Scale: true,
+		}),
+		charts.WithDataZoomOpts(opts.DataZoom{
+			Start:      0,
+			End:        10000,
+			XAxisIndex: []int{0},
+		}),
+	)
+
+	if times[0].In(loc).After(tim.Add((9 * time.Hour) + (29 * time.Minute))) {
+		// dont draw first line
+	} else {
+		preY = append(preY, opts.BarData{
+			Value: []interface{}{tim.Format("3:04 PM"), 0},
+		},
+			opts.BarData{
+				Name:  "a",
+				Value: []interface{}{tim.Add(time.Minute).Format("3:04 PM"), 0},
+			},
+		)
+
+		bar.AddSeries("pre", preY).SetSeriesOptions(
+		//charts.WithMarkLineNameYAxisItemOpts(opts.MarkLineNameYAxisItem{
+		//	Name:     "a",
+		//	ValueDim: "maximum",
+		//},
+		//),
+		)
+	}
+
+	if times[len(times)-1].In(loc).After(tim.Add(17 * time.Hour)) {
+		postY = append(postY, opts.BarData{
+			Name:  "b",
+			Value: []interface{}{tim.Format("3:04 PM"), max},
+		},
+			opts.BarData{
+				Name:  "b",
+				Value: []interface{}{tim.Add(time.Minute).Format("3:04 PM"), max},
+			},
+		)
+		bar.AddSeries("post", postY).SetSeriesOptions(
+		//charts.WithMarkLineNameYAxisItemOpts(opts.MarkLineNameYAxisItem{
+		//	Name:     "a",
+		//	ValueDim: "maximum",
+		//},
+		//),
+		)
+	}
+
+	return bar
+}
+
 func baseCandleGraph(candles []normalize.NormalCandleData, ticker string, timeframe string) *charts.Kline {
 	kline := charts.NewKLine()
 
@@ -38,12 +106,14 @@ func baseCandleGraph(candles []normalize.NormalCandleData, ticker string, timefr
 	y := make([]opts.KlineData, 0)
 	var finalVal float32
 	var initVal float32
+	var maxVal float32
 
 	if len(candles) <= 0 {
 		return nil
 	}
-	loc, _ := time.LoadLocation("America/Detroit")
 	initVal = candles[0].Data[1]
+	times := []time.Time{}
+
 	for i := 0; i < len(candles); i++ {
 		tm := time.Unix(candles[i].Date, 0).In(loc)
 		// add: volume, rsi - seperate Y axis
@@ -53,7 +123,8 @@ func baseCandleGraph(candles []normalize.NormalCandleData, ticker string, timefr
 		case "15":
 			fallthrough
 		case "60":
-			x = append(x, tm.Format(("3:04 PM")))
+			fallthrough
+			//x = append(x, tm.Format(("3:04 PM")))
 		case "D":
 			fallthrough
 		case "W":
@@ -63,7 +134,13 @@ func baseCandleGraph(candles []normalize.NormalCandleData, ticker string, timefr
 		}
 
 		y = append(y, opts.KlineData{Value: candles[i].Data})
+		times = append(times, tm)
+
 		finalVal = candles[i].Data[1]
+
+		if maxVal < finalVal {
+			maxVal = finalVal
+		}
 	}
 
 	pctChange := ((finalVal - initVal) / initVal) * 100
@@ -88,11 +165,6 @@ func baseCandleGraph(candles []normalize.NormalCandleData, ticker string, timefr
 		charts.WithYAxisOpts(opts.YAxis{
 			Scale: true,
 		}),
-		charts.WithXAxisOpts(opts.XAxis{
-			Scale: true,
-			Min:   "dataMin",
-			Max:   "dataMax",
-		}),
 		charts.WithDataZoomOpts(opts.DataZoom{
 			Start:      0,
 			End:        10000,
@@ -108,6 +180,12 @@ func baseCandleGraph(candles []normalize.NormalCandleData, ticker string, timefr
 			BorderColor0: "#880000",
 		}),
 	)
+
+	if timeframe == "15" || timeframe == "60" {
+
+		_ = getExtendedDeMarker(times, maxVal)
+	}
+
 	return kline
 }
 
@@ -199,7 +277,7 @@ func bollingerBandsGraph(x []int64, m []float64, u []float64, l []float64) (ml, 
 
 func GetDStocksChart(ticker string) (string, error) {
 	ticker = strings.ToUpper(ticker)
-	stock, err := fetcher.GetStock(ticker, "D", time.Now().Add(-24*time.Hour*48), time.Now())
+	stock, err := fetcher.GetStock(ticker, "D", time.Now().Add(-24*time.Hour*180), time.Now())
 
 	if err != nil {
 		return "", err
@@ -232,10 +310,9 @@ func GetDStocksChart(ticker string) (string, error) {
 
 func Get15MStocksChart(ticker string) (string, error) {
 	ticker = strings.ToUpper(ticker)
-	loc, _ := time.LoadLocation("America/Detroit")
 	yesterday := time.Now().In(loc).Add(-time.Hour * 24).Format("2006/01/02")
 	tim, _ := time.Parse("2006/01/02", yesterday)
-	stock, err := fetcher.GetStock(ticker, "15", tim.Add(time.Hour*28), time.Now())
+	stock, err := fetcher.GetStock(ticker, "15", tim.Add(time.Hour*4), time.Now())
 
 	if err != nil {
 		return "", err
@@ -268,8 +345,7 @@ func Get15MStocksChart(ticker string) (string, error) {
 
 func GetHStocksChart(ticker string) (string, error) {
 	ticker = strings.ToUpper(ticker)
-	loc, _ := time.LoadLocation("America/Detroit")
-	yesterday := time.Now().In(loc).Add(-time.Hour * 168).Format("2006/01/02")
+	yesterday := time.Now().In(loc).Add(-time.Hour * 336).Format("2006/01/02")
 	tim, _ := time.Parse("2006/01/02", yesterday)
 	stock, err := fetcher.GetStock(ticker, "60", tim.Add(time.Hour*4), time.Now())
 
@@ -304,7 +380,7 @@ func GetHStocksChart(ticker string) (string, error) {
 
 func GetDCryptoChart(ticker string) (string, error) {
 	ticker = strings.ToUpper(ticker)
-	crypto, err := fetcher.GetCrypto(ticker, "D", time.Now().Add(-24*time.Hour*48), time.Now())
+	crypto, err := fetcher.GetCrypto(ticker, "D", time.Now().Add(-24*time.Hour*180), time.Now())
 
 	if err != nil {
 		return "", err
@@ -337,7 +413,6 @@ func GetDCryptoChart(ticker string) (string, error) {
 
 func Get15MCryptoChart(ticker string) (string, error) {
 	ticker = strings.ToUpper(ticker)
-	loc, _ := time.LoadLocation("America/Detroit")
 	yesterday := time.Now().In(loc).Add(-time.Hour * 24).Format("2006/01/02")
 	tim, _ := time.Parse("2006/01/02", yesterday)
 	crypto, err := fetcher.GetCrypto(ticker, "15", tim, time.Now())
@@ -373,8 +448,7 @@ func Get15MCryptoChart(ticker string) (string, error) {
 
 func GetHCryptoChart(ticker string) (string, error) {
 	ticker = strings.ToUpper(ticker)
-	loc, _ := time.LoadLocation("America/Detroit")
-	yesterday := time.Now().In(loc).Add(-time.Hour * 168).Format("2006/01/02")
+	yesterday := time.Now().In(loc).Add(-time.Hour * 336).Format("2006/01/02")
 	tim, _ := time.Parse("2006/01/02", yesterday)
 	crypto, err := fetcher.GetCrypto(ticker, "60", tim, time.Now())
 
