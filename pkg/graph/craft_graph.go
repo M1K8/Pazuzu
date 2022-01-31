@@ -121,10 +121,9 @@ func baseCandleGraph(candles []normalize.NormalCandleData, ticker string, timefr
 
 		switch timeframe {
 		case "15":
-			fallthrough
+			x = append(x, tm.Format(("3:04 PM")))
 		case "60":
 			fallthrough
-			//x = append(x, tm.Format(("3:04 PM")))
 		case "D":
 			fallthrough
 		case "W":

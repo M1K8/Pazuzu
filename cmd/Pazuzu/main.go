@@ -7,8 +7,12 @@ import (
 )
 
 func main() {
-	fmt.Println(graph.GetHStocksChart("aapl"))
-	fmt.Println(graph.Get15MStocksChart("aapl"))
-	fmt.Println(graph.GetDStocksChart("aapl"))
+	fmt.Println(graph.Get15MCryptoChart("c"))
+	fmt.Println(graph.Get15MStocksChart("f"))
+	//fmt.Println(graph.GetHCryptoChart("cro"))
+	//fmt.Println(graph.GetHStocksChart("f"))
+
+	//fmt.Println(graph.GetHCryptoChart("cro"))
+	//fmt.Println(graph.GetHStocksChart("f"))
 
 }
