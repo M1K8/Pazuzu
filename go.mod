@@ -9,6 +9,7 @@ require (
 	github.com/cinar/indicator v1.2.11
 	github.com/go-echarts/go-echarts/v2 v2.2.4
 	github.com/google/uuid v1.3.0
+	github.com/superoo7/go-gecko v1.0.0
 )
 
 require (
@@ -20,7 +21,6 @@ require (
 	github.com/jmoiron/jsonq v0.0.0-20150511023944-e874b168d07e // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/superoo7/go-gecko v1.0.0 // indirect
 	golang.org/x/net v0.0.0-20200822124328-c89045814202 // indirect
 	golang.org/x/oauth2 v0.0.0-20210218202405-ba52d332ba99 // indirect
 	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881 // indirect

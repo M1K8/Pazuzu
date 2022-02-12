@@ -103,6 +103,9 @@ github.com/mailru/easyjson/jlexer
 github.com/mailru/easyjson/jwriter
 # github.com/superoo7/go-gecko v1.0.0
 ## explicit
+github.com/superoo7/go-gecko/format
+github.com/superoo7/go-gecko/v3
+github.com/superoo7/go-gecko/v3/types
 # golang.org/x/net v0.0.0-20200822124328-c89045814202
 ## explicit; go 1.11
 golang.org/x/net/context
