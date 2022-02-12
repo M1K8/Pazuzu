@@ -75,7 +75,73 @@ func GetCrypto(coin, resolution string, from, to time.Time) (*finnhub.CryptoCand
 	cfg.AddDefaultHeader("X-Finnhub-Token", finn)
 	finnhubClient := finnhub.NewAPIClient(cfg).DefaultApi
 
-	candles, req, err := finnhubClient.CryptoCandles(context.Background()).Symbol("BINANCE:" + strings.ToUpper(coin) + "USDC").Resolution(resolution).From(from.Unix()).To(to.Unix()).Execute()
+	candles, req, err := finnhubClient.CryptoCandles(context.Background()).Symbol("COINBASE:" + strings.ToUpper(coin) + "-USD").Resolution(resolution).From(from.Unix()).To(to.Unix()).Execute()
+
+	if err != nil {
+		if req != nil {
+			log.Println(req.StatusCode)
+			candles, req, err := finnhubClient.CryptoCandles(context.Background()).Symbol("COINBASE:" + strings.ToUpper(coin) + "-USDT").Resolution(resolution).From(from.Unix()).To(to.Unix()).Execute()
+			if err != nil {
+				if req != nil {
+					log.Println(req.StatusCode)
+					return getCryptoBackup(coin, resolution, from, to)
+				}
+				return getCryptoBackup(coin, resolution, from, to)
+			}
+			if len(candles.GetC()) == 0 {
+				return getCryptoBackup(coin, resolution, from, to)
+			}
+
+			return &candles, nil
+		} else {
+			return getCryptoBackup(coin, resolution, from, to)
+		}
+	}
+
+	if len(candles.GetC()) == 0 {
+		return getCryptoBackup(coin, resolution, from, to)
+	}
+
+	return &candles, nil
+}
+
+func getCryptoBackup(coin, resolution string, from, to time.Time) (*finnhub.CryptoCandles, error) {
+	cfg := finnhub.NewConfiguration()
+	cfg.AddDefaultHeader("X-Finnhub-Token", finn)
+	finnhubClient := finnhub.NewAPIClient(cfg).DefaultApi
+
+	candles, req, err := finnhubClient.CryptoCandles(context.Background()).Symbol("BINANCE:" + strings.ToUpper(coin) + "USD").Resolution(resolution).From(from.Unix()).To(to.Unix()).Execute()
+
+	if err != nil {
+		if req != nil {
+			log.Println(req.StatusCode)
+			candles, req, err := finnhubClient.CryptoCandles(context.Background()).Symbol("BINANCE:" + strings.ToUpper(coin) + "USDT").Resolution(resolution).From(from.Unix()).To(to.Unix()).Execute()
+			if err != nil {
+				if req != nil {
+					log.Println(req.StatusCode)
+					return nil, err
+				}
+				return nil, err
+			}
+			if len(candles.GetC()) == 0 {
+				return nil, errors.New("coin not found - both")
+			}
+
+			return &candles, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	if len(candles.GetC()) == 0 {
+		return nil, errors.New("coin not found - both")
+	}
+
+	return &candles, nil
+}
+
+
+andles, req, err := finnhubClient.CryptoCandles(context.Background()).Symbol("BINANCE:" + strings.ToUpper(coin) + "USDC").Resolution(resolution).From(from.Unix()).To(to.Unix()).Execute()
 
 	if err != nil {
 		if req != nil {
@@ -97,10 +163,3 @@ func GetCrypto(coin, resolution string, from, to time.Time) (*finnhub.CryptoCand
 			return nil, err
 		}
 	}
-
-	if len(candles.GetC()) == 0 {
-		return nil, errors.New("coin not found")
-	}
-
-	return &candles, nil
-}
