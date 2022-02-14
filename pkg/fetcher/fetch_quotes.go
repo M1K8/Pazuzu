@@ -110,12 +110,12 @@ func getCryptoBackup(coin, resolution string, from, to time.Time) (*finnhub.Cryp
 	cfg.AddDefaultHeader("X-Finnhub-Token", finn)
 	finnhubClient := finnhub.NewAPIClient(cfg).DefaultApi
 
-	candles, req, err := finnhubClient.CryptoCandles(context.Background()).Symbol("BINANCE:" + strings.ToUpper(coin) + "USD").Resolution(resolution).From(from.Unix()).To(to.Unix()).Execute()
+	candles, req, err := finnhubClient.CryptoCandles(context.Background()).Symbol("BINANCE:" + strings.ToUpper(coin) + "USDT").Resolution(resolution).From(from.Unix()).To(to.Unix()).Execute()
 
 	if err != nil {
 		if req != nil {
 			log.Println(req.StatusCode)
-			candles, req, err := finnhubClient.CryptoCandles(context.Background()).Symbol("BINANCE:" + strings.ToUpper(coin) + "USDT").Resolution(resolution).From(from.Unix()).To(to.Unix()).Execute()
+			candles, req, err := finnhubClient.CryptoCandles(context.Background()).Symbol("BINANCE:" + strings.ToUpper(coin) + "USDC").Resolution(resolution).From(from.Unix()).To(to.Unix()).Execute()
 			if err != nil {
 				if req != nil {
 					log.Println(req.StatusCode)
