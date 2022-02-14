@@ -139,27 +139,3 @@ func getCryptoBackup(coin, resolution string, from, to time.Time) (*finnhub.Cryp
 
 	return &candles, nil
 }
-
-
-andles, req, err := finnhubClient.CryptoCandles(context.Background()).Symbol("BINANCE:" + strings.ToUpper(coin) + "USDC").Resolution(resolution).From(from.Unix()).To(to.Unix()).Execute()
-
-	if err != nil {
-		if req != nil {
-			log.Println(req.StatusCode)
-			candles, req, err := finnhubClient.CryptoCandles(context.Background()).Symbol("BINANCE:" + strings.ToUpper(coin) + "USDT").Resolution(resolution).From(from.Unix()).To(to.Unix()).Execute()
-			if err != nil {
-				if req != nil {
-					log.Println(req.StatusCode)
-					return nil, err
-				}
-				return nil, err
-			}
-			if len(candles.GetC()) == 0 {
-				return nil, errors.New("coin not found")
-			}
-
-			return &candles, nil
-		} else {
-			return nil, err
-		}
-	}
